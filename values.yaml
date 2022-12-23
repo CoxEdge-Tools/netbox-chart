@@ -211,7 +211,7 @@ storageConfig: {}
   # AWS_S3_REGION_NAME: 'eu-west-1'
 
 # Expose Prometheus monitoring metrics at the HTTP endpoint '/metrics'
-metricsEnabled: false
+metricsEnabled: true
 
 napalm:
   # Credentials that NetBox will use to access live devices.
@@ -261,19 +261,19 @@ rackElevationDefaultUnitWidth: 220
 
 # Remote authentication support
 remoteAuth:
-  enabled: false
-  backend: netbox.authentication.RemoteUserBackend
-  header: HTTP_REMOTE_USER
-  autoCreateUser: true
-  defaultGroups: []
-  defaultPermissions: {}
-  groupSyncEnabled: false
-  groupHeader: HTTP_REMOTE_USER_GROUP
-  superuserGroups: []
-  superusers: []
-  staffGroups: []
-  staffUsers: []
-  groupSeparator: '|'
+  enabled: true
+  backend: social_core.backends.github.GithubTeamOAuth2
+  autoCreateUser: false
+  # header: HTTP_REMOTE_USER
+  # defaultGroups: []
+  # defaultPermissions: {}
+  # groupSyncEnabled: false
+  # groupHeader: HTTP_REMOTE_USER_GROUP
+  # superuserGroups: []
+  # superusers: []
+  # staffGroups: []
+  # staffUsers: []
+  # groupSeparator: '|'
 
   # The following options are specific for backend "netbox.authentication.LDAPBackend"
   # you can use an existing netbox secret with "ldap_bind_password" instead of "bindPassword"
@@ -334,7 +334,11 @@ shortDateTimeFormat: 'Y-m-d H:i'
 # You can pass additional YAML files to be loaded into NetBox's configuration.
 # These can be passed as arbitrary configuration values set in the chart, or
 # you can load arbitrary *.yaml keys from ConfigMaps and Secrets.
-extraConfig: []
+extraConfig:
+  - values:
+      SOCIAL_AUTH_GITHUB_TEAM_ID: '6161124'
+      SOCIAL_AUTH_GITHUB_TEAM_KEY: '811735c1c82b41eebd3a'
+      SOCIAL_AUTH_GITHUB_TEAM_SECRET: '8728bb237cf0fac410a00d56589adfdd92fecfb8'
   # - values:
   #     EXTRA_SETTING_ONE: example
   #     ANOTHER_SETTING: foobar
@@ -373,7 +377,7 @@ postgresql:
   ## Deploy PostgreSQL using bundled chart
   # To use an external database, set this to false and configure the settings
   # under externalDatabase
-  enabled: true
+  enabled: false
 
   postgresqlUsername: netbox
   postgresqlDatabase: netbox
@@ -381,13 +385,13 @@ postgresql:
 ## External database settings
 # These are used if postgresql.enabled is false, and are ignored otherwise
 externalDatabase:
-  host: localhost
+  host: postgresql-hl
   port: 5432
   database: netbox
   username: netbox
   password: ""
-  existingSecretName: ""
-  existingSecretKey: postgresql-password
+  existingSecretName: postgresql
+  existingSecretKey: password
 
   # The following settings also apply when using the bundled PostgreSQL chart:
   sslMode: prefer
@@ -399,6 +403,8 @@ redis:
   # To use an external Redis instance, set this to false and configure the
   # settings under *both* tasksRedis *and* cachingRedis
   enabled: true
+  global:
+    storageClass: longhorn
 
 tasksRedis:
   database: 0
@@ -462,7 +468,7 @@ persistence:
   ## If undefined (the default) or set to null, no storageClassName spec is
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
-  storageClass: ""
+  storageClass: longhorn
   ## Persistent Volume Selector
   ## if enabled, define any Selectors for choosing existing Persistent Volumes here
   # selector:
@@ -488,7 +494,7 @@ reportsPersistence:
   ## If undefined (the default) or set to null, no storageClassName spec is
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
-  storageClass: ""
+  storageClass: longhorn
   ## Persistent Volume Selector
   ## if enabled, define any Selectors for choosing existing Persistent Volumes here
   # selector:
@@ -542,11 +548,17 @@ service:
 ingress:
   enabled: false
   className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/cluster-issuer-duration: 8760h
+    cert-manager.io/cluster-issuer-email: matthew.mattox@coxedge.com
+    cert-manager.io/issue-temporary-certificate: "true"
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+    external-dns.alpha.kubernetes.io/hostname: netbox.coxedgecomputing.com
+    external-dns.alpha.kubernetes.io/ttl: "120"
+    ingress.kubernetes.io/force-ssl-redirect: "true"
   hosts:
-    - host: chart-example.local
+    - host: netbox.coxedgecomputing.com
       paths:
         # You can manually specify the service name and service port if
         # required. This could be useful if for exemple you are using the AWS
@@ -562,10 +574,10 @@ ingress:
         # NB: You may also want to set the basePath above
         - /
 
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+  tls:
+    - secretName: netbox-tls
+      hosts:
+        - netbox.coxedgecomputing.com
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -654,7 +666,7 @@ extraInitContainers: []
 
 # Configuration of Cron settings
 housekeeping:
-  enabled: true
+  enabled: false
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 5
   restartPolicy: OnFailure
@@ -732,7 +744,7 @@ housekeeping:
 # Worker for Netbox
 # Only required for Netbox Jobs, e.g. Webhooks
 worker:
-  enabled: true
+  enabled: false
 
   replicaCount: 1
 

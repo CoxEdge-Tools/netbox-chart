@@ -1,0 +1,42 @@
+---
+  kind: pipeline
+  type: kubernetes
+  name: prod
+  
+  trigger:
+    branches:
+      - coxedge-master
+    event:
+      - push
+  
+  steps:
+    - name: deploy
+      image: pelotech/drone-helm3
+      settings:
+        mode: upgrade
+        chart: .
+        dependencies_action: update
+        release: netbox-release
+        namespace: netbox
+        values_files: [ "./values.yaml" ]
+        kube_api_server:
+          from_secret: kubernetes_server
+        kube_token:
+          from_secret: kubernetes_token
+        skip_tls_verify: true  
+        cleanup_failed_upgrade: true
+    - name: notify
+      image: plugins/slack
+      settings:
+        webhook:
+          from_secret: slack_webhook
+        channel: drone-updates
+        link_names: true
+        template: >
+          {{#success build.status}}
+            build {{build.number}} succeeded. Good job.
+          {{else}}
+            build {{build.number}} failed. Fix me please.
+          {{/success}}
+      when:
+        status: [ success, failure ]

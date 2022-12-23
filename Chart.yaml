@@ -1,7 +1,7 @@
 apiVersion: v2
 name: netbox
 version: 4.1.0
-appVersion: v3.2.6
+appVersion: v3.4.1
 description: IP address management (IPAM) and data center infrastructure management (DCIM) tool
 home: https://github.com/bootc/netbox-chart
 icon: https://raw.githubusercontent.com/netbox-community/netbox/develop/docs/netbox_logo.png
@@ -11,10 +11,10 @@ maintainers:
   url: https://github.com/bootc
 dependencies:
 - name: postgresql
-  version: 10.x.x
+  version: 12.x.x
   repository: https://charts.bitnami.com/bitnami
   condition: postgresql.enabled
 - name: redis
-  version: 15.x.x
+  version: 17.x.x
   repository: https://charts.bitnami.com/bitnami
   condition: redis.enabled
