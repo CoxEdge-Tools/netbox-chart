@@ -459,7 +459,7 @@ serviceAccount:
 
 ## Storage configuration for media
 persistence:
-  enabled: false
+  enabled: true
   ##
   ## Existing claim to use
   existingClaim: ""
