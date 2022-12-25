@@ -385,12 +385,16 @@ postgresql:
 ## External database settings
 # These are used if postgresql.enabled is false, and are ignored otherwise
 externalDatabase:
-  host: postgresql-hl
+  #host: postgresql-hl
+  host: netbox-postgres-primary
   port: 5432
-  database: netbox
-  username: netbox
+  #database: netbox
+  #username: netbox
+  database: netbox-postgres
+  username: netbox-postgres
   password: ""
-  existingSecretName: postgresql
+  #existingSecretName: postgresql
+  existingSecretName: netbox-postgres-pguser-netbox-postgres
   existingSecretKey: password
 
   # The following settings also apply when using the bundled PostgreSQL chart:
@@ -546,7 +550,7 @@ service:
   # - 10.0.0.0/8
 
 ingress:
-  enabled: false
+  enabled: true
   className: ""
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
