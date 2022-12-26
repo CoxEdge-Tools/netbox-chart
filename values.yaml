@@ -262,7 +262,8 @@ rackElevationDefaultUnitWidth: 220
 # Remote authentication support
 remoteAuth:
   enabled: true
-  backend: social_core.backends.github.GithubTeamOAuth2
+  # backend: social_core.backends.github.GithubTeamOAuth2
+  backend: social_core.backends.github.GithubOrganizationOAuth2
   autoCreateUser: false
   # header: HTTP_REMOTE_USER
   # defaultGroups: []
@@ -336,9 +337,15 @@ shortDateTimeFormat: 'Y-m-d H:i'
 # you can load arbitrary *.yaml keys from ConfigMaps and Secrets.
 extraConfig:
   - values:
-      SOCIAL_AUTH_GITHUB_TEAM_ID: '6161124'
-      SOCIAL_AUTH_GITHUB_TEAM_KEY: '811735c1c82b41eebd3a'
-      SOCIAL_AUTH_GITHUB_TEAM_SECRET: '8728bb237cf0fac410a00d56589adfdd92fecfb8'
+      # NETBOX_DELETE_LEGACY_DATA: 1
+      SOCIAL_AUTH_GITHUB_ORG_NAME: 'coxedge'
+      # SOCIAL_AUTH_GITHUB_ORG_KEY: '811735c1c82b41eebd3a'
+      # SOCIAL_AUTH_GITHUB_ORG_SECRET: '8728bb237cf0fac410a00d56589adfdd92fecfb8'
+      # SOCIAL_AUTH_GITHUB_TEAM_ID: '6161124'
+      # SOCIAL_AUTH_GITHUB_TEAM_ID: '6106578'
+      SOCIAL_AUTH_GITHUB_ORG_KEY: '5ac48ca8fd217a70e1d0'
+      SOCIAL_AUTH_GITHUB_ORG_SECRET: '23af11fc048384644014a40a82cf8d7d3e303dba'
+      SOCIAL_AUTH_GITHUB_ORG_SCOPE: ['user:email', 'read:org']
   # - values:
   #     EXTRA_SETTING_ONE: example
   #     ANOTHER_SETTING: foobar
@@ -385,16 +392,16 @@ postgresql:
 ## External database settings
 # These are used if postgresql.enabled is false, and are ignored otherwise
 externalDatabase:
-  #host: postgresql-hl
-  host: netbox-postgres-primary
+  host: postgresql-hl
+  #host: netbox-postgres-primary
   port: 5432
-  #database: netbox
-  #username: netbox
-  database: netbox-postgres
-  username: netbox-postgres
+  database: netbox
+  username: netbox
+  #database: netbox-postgres
+  #username: netbox-postgres
   password: ""
-  #existingSecretName: postgresql
-  existingSecretName: netbox-postgres-pguser-netbox-postgres
+  existingSecretName: postgresql
+  #existingSecretName: netbox-postgres-pguser-netbox-postgres
   existingSecretKey: password
 
   # The following settings also apply when using the bundled PostgreSQL chart:
